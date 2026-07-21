@@ -21,7 +21,7 @@ REGISTRAR_PASSWORD = "11111111"
 DEAN_PASSWORD = "00000000"
 
 # ============================================================
-# TRANSLATIONS (FIXED APOSTROPHES)
+# TRANSLATIONS (WITH 'month' ADDED)
 # ============================================================
 TRANSLATIONS = {
     'en': {
@@ -116,6 +116,7 @@ TRANSLATIONS = {
         'delete_btn': 'Delete Selected',
         'undo_btn': '↩️ Undo Last',
         'clear': 'Clear All',
+        'month': 'Month',  # <-- ADDED
     },
     'am': {
         'app_title': 'የጄኤምቢሲ ውጤት አስተዳደር ስርዓት',
@@ -209,6 +210,7 @@ TRANSLATIONS = {
         'delete_btn': 'የተመረጠውን ሰርዝ',
         'undo_btn': '↩️ የመጨረሻውን ቀልብስ',
         'clear': 'ሁሉንም አጽዳ',
+        'month': 'ወር',  # <-- ADDED
     },
     'so': {
         'app_title': 'Nidaamka Buundooyinka ee JMBC',
@@ -302,6 +304,7 @@ TRANSLATIONS = {
         'delete_btn': 'Tirtir',
         'undo_btn': '↩️ Ka Noqo Tirtirka',
         'clear': 'Nadiifi Dhammaan',
+        'month': 'Bil',  # <-- ADDED
     }
 }
 
