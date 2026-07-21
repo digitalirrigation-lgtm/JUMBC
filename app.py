@@ -21,7 +21,7 @@ REGISTRAR_PASSWORD = "11111111"
 DEAN_PASSWORD = "00000000"
 
 # ============================================================
-# TRANSLATIONS
+# TRANSLATIONS (FIXED APOSTROPHES)
 # ============================================================
 TRANSLATIONS = {
     'en': {
@@ -278,7 +278,7 @@ TRANSLATIONS = {
         'exam_30': '30% Imtixaanka',
         'total_marks': 'Wadarta Buundooyinka',
         'grade': 'Buundo',
-        'remark': 'Faa'iido',
+        'remark': "Faa'iido",
         'academic_year': 'Sannadka Waxbarashada',
         'semester': 'Simistar',
         'jigjiga': 'Jigjiga',
@@ -913,7 +913,7 @@ if st.session_state.authenticated:
                             use_container_width=True
                         )
                     else:
-                        st.info(f"No NG students in {t['january'] if month_sel==1 else ''} {year_sel}")
+                        st.info(f"No NG students in {month_sel}/{year_sel}")
                 
                 # Delete Record
                 st.markdown("---")
