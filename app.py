@@ -19,9 +19,10 @@ warnings.filterwarnings('ignore')
 DB_PATH = "jmbc_grades.db"
 REGISTRAR_PASSWORD = "11111111"
 DEAN_PASSWORD = "00000000"
+INSTRUCTOR_PASSWORD = "22222222"
 
 # ============================================================
-# TRANSLATIONS (WITH 'month' ADDED)
+# TRANSLATIONS (with Instructor added)
 # ============================================================
 TRANSLATIONS = {
     'en': {
@@ -32,8 +33,10 @@ TRANSLATIONS = {
         'select_role': 'Select Role',
         'registrar': '📋 Registrar',
         'dean': '👔 Dean',
+        'instructor': '👨‍🏫 Instructor',
         'registrar_password': 'Enter Registrar Password',
         'dean_password': 'Enter Dean Password',
+        'instructor_password': 'Enter Instructor Password',
         'incorrect_password': '❌ Incorrect password.',
         'access_granted': '✅ Access granted.',
         'refresh': '🔄 Refresh Data',
@@ -53,6 +56,7 @@ TRANSLATIONS = {
         'enter_positive': 'Please enter valid data.',
         'welcome_registrar': '👋 Welcome, Registrar!',
         'welcome_dean': '👋 Welcome, Dean!',
+        'welcome_instructor': '👋 Welcome, Instructor!',
         'good_morning': '🌅 Good Morning!',
         'good_afternoon': '☀️ Good Afternoon!',
         'good_evening': '🌙 Good Evening!',
@@ -116,7 +120,9 @@ TRANSLATIONS = {
         'delete_btn': 'Delete Selected',
         'undo_btn': '↩️ Undo Last',
         'clear': 'Clear All',
-        'month': 'Month',  # <-- ADDED
+        'month': 'Month',
+        'manual_entry': '✏️ Manual Entry',
+        'manual_submit_btn': '➕ Submit Grade',
     },
     'am': {
         'app_title': 'የጄኤምቢሲ ውጤት አስተዳደር ስርዓት',
@@ -126,8 +132,10 @@ TRANSLATIONS = {
         'select_role': 'ሚና ይምረጡ',
         'registrar': '📋 መዝጋቢ',
         'dean': '👔 ዲን',
+        'instructor': '👨‍🏫 አስተማሪ',
         'registrar_password': 'የመዝጋቢ የይለፍ ቃል',
         'dean_password': 'የዲን የይለፍ ቃል',
+        'instructor_password': 'የአስተማሪ የይለፍ ቃል',
         'incorrect_password': '❌ የይለፍ ቃሉ ተሳስቷል።',
         'access_granted': '✅ መዳረሻ ተሰጥቷል',
         'refresh': '🔄 አድስ',
@@ -147,6 +155,7 @@ TRANSLATIONS = {
         'enter_positive': 'እባክዎ ትክክለኛ መረጃ ያስገቡ።',
         'welcome_registrar': '👋 እንኳን ደህና መጡ መዝጋቢ!',
         'welcome_dean': '👋 እንኳን ደህና መጡ ዲን!',
+        'welcome_instructor': '👋 እንኳን ደህና መጡ አስተማሪ!',
         'good_morning': '🌅 እንደምን አደሩ!',
         'good_afternoon': '☀️ እንደምን ዋሉ!',
         'good_evening': '🌙 እንደምን አመሹ!',
@@ -210,7 +219,9 @@ TRANSLATIONS = {
         'delete_btn': 'የተመረጠውን ሰርዝ',
         'undo_btn': '↩️ የመጨረሻውን ቀልብስ',
         'clear': 'ሁሉንም አጽዳ',
-        'month': 'ወር',  # <-- ADDED
+        'month': 'ወር',
+        'manual_entry': '✏️ በእጅ ማስገቢያ',
+        'manual_submit_btn': '➕ ውጤት አስገባ',
     },
     'so': {
         'app_title': 'Nidaamka Buundooyinka ee JMBC',
@@ -220,8 +231,10 @@ TRANSLATIONS = {
         'select_role': 'Dooro Doorka',
         'registrar': '📋 Diwaangeliye',
         'dean': '👔 Dekaan',
+        'instructor': '👨‍🏫 Macallin',
         'registrar_password': 'Furaha Diwaangeliye',
         'dean_password': 'Furaha Dekaan',
+        'instructor_password': 'Furaha Macallin',
         'incorrect_password': '❌ Furaha waa qalad.',
         'access_granted': '✅ Gelitaan la siiyay',
         'refresh': '🔄 Cusboonaysii',
@@ -241,6 +254,7 @@ TRANSLATIONS = {
         'enter_positive': 'Fadlan geli xog sax ah.',
         'welcome_registrar': '👋 Soo dhowow, Diwaangeliye!',
         'welcome_dean': '👋 Soo dhowow, Dekaan!',
+        'welcome_instructor': '👋 Soo dhowow, Macallin!',
         'good_morning': '🌅 Subax wanaagsan!',
         'good_afternoon': '☀️ Galab wanaagsan!',
         'good_evening': '🌙 Fiid wanaagsan!',
@@ -304,7 +318,9 @@ TRANSLATIONS = {
         'delete_btn': 'Tirtir',
         'undo_btn': '↩️ Ka Noqo Tirtirka',
         'clear': 'Nadiifi Dhammaan',
-        'month': 'Bil',  # <-- ADDED
+        'month': 'Bil',
+        'manual_entry': '✏️ Geli Gacanta',
+        'manual_submit_btn': '➕ Soo Gel Buundo',
     }
 }
 
@@ -360,7 +376,6 @@ else:
 # GRADE CALCULATION FUNCTIONS
 # ============================================================
 def calculate_grade(total_marks):
-    """Calculate grade based on total marks"""
     if total_marks == 0:
         return 'F', 'Failed'
     elif total_marks < 74:
@@ -381,7 +396,6 @@ def calculate_grade(total_marks):
         return 'NG', 'NG'
 
 def process_grades(df):
-    """Process grades from uploaded dataframe"""
     results = []
     for idx, row in df.iterrows():
         total = row['Assessment70'] + row['Exam30']
@@ -403,7 +417,6 @@ def process_grades(df):
     return pd.DataFrame(results)
 
 def save_grades(df, academic_year, semester):
-    """Save processed grades to database"""
     conn = get_db()
     c = conn.cursor()
     for idx, row in df.iterrows():
@@ -437,7 +450,6 @@ def delete_grade_record(record_id):
                    'Grade', 'Remark', 'AcademicYear', 'Semester', 'UploadDate', 'CreatedAt']
         old_data = {columns[i]: row[i] for i in range(len(columns))}
         c.execute("DELETE FROM Grades WHERE Id = ?", (record_id,))
-        # Log for undo
         c.execute("""INSERT INTO UndoLog (OperationType, RecordId, OldData, CreatedAt)
                      VALUES (?, ?, ?, ?)""",
                   ('DELETE', record_id, json.dumps(old_data), 
@@ -455,10 +467,8 @@ def undo_last_delete():
     row = c.fetchone()
     if not row:
         return False, "No operation to undo"
-    
     record_id = row[2]
     old_data = json.loads(row[3])
-    
     try:
         columns = ', '.join(old_data.keys())
         placeholders = ', '.join(['?' for _ in old_data])
@@ -481,19 +491,10 @@ def get_last_undo():
         return f"{row[0]} at {row[1]}"
     return None
 
-def get_ng_f_students():
-    """Get only NG and F students"""
-    df = get_all_grades()
-    if df.empty:
-        return df
-    return df[df['Remark'].isin(['NG', 'Failed'])]
-
 def get_monthly_ng_report(month, year):
-    """Get NG students for specific month"""
     df = get_all_grades()
     if df.empty:
         return df
-    # Filter by upload date
     df['UploadDate'] = pd.to_datetime(df['UploadDate'])
     mask = (df['UploadDate'].dt.month == month) & (df['UploadDate'].dt.year == year)
     monthly = df[mask]
@@ -511,11 +512,7 @@ def get_department_summary():
     summary['Failed'] = summary['Total'] - summary['Passed']
     return summary
 
-# ============================================================
-# EXCEL TEMPLATE GENERATION
-# ============================================================
 def generate_template():
-    """Generate Excel template for grade upload"""
     sample_data = {
         'StudentID': ['JMBC-001', 'JMBC-002', 'JMBC-003'],
         'StudentName': ['Abebe Kebede', 'Alemitu Hailu', 'Dawit Tadesse'],
@@ -527,11 +524,9 @@ def generate_template():
         'Assessment70': [65, 72, 55],
         'Exam30': [28, 25, 20]
     }
-    df = pd.DataFrame(sample_data)
-    return df
+    return pd.DataFrame(sample_data)
 
 def create_excel_download(df, filename):
-    """Create Excel file for download"""
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='Grades')
@@ -602,12 +597,6 @@ st.markdown("""
 .pass { color: #28a745 !important; font-weight: bold; }
 .fail { color: #dc3545 !important; font-weight: bold; }
 .ng { color: #ffc107 !important; font-weight: bold; }
-.grade-Aplus { color: #1a8a3a !important; font-weight: bold; }
-.grade-A { color: #28a745 !important; font-weight: bold; }
-.grade-B { color: #17a2b8 !important; font-weight: bold; }
-.grade-Bminus { color: #6c8a9a !important; font-weight: bold; }
-.grade-C { color: #ffc107 !important; font-weight: bold; }
-.grade-Cminus { color: #fd7e14 !important; font-weight: bold; }
 .stButton button {
   background: linear-gradient(145deg, #FFD700, #B8860B) !important;
   color: #1a1a2e !important;
@@ -651,7 +640,7 @@ st.markdown(f"""
 
 # ---- SIDEBAR ----
 st.sidebar.markdown(f"### {t['access']}")
-role = st.sidebar.radio(t['select_role'], [t['registrar'], t['dean']])
+role = st.sidebar.radio(t['select_role'], [t['registrar'], t['dean'], t['instructor']])
 
 # Password handling
 if 'authenticated' not in st.session_state:
@@ -672,13 +661,26 @@ if role == t['registrar']:
                 st.sidebar.error(t['incorrect_password'])
     else:
         st.sidebar.success(f"✅ {t['access_granted']}")
-else:
+elif role == t['dean']:
     if not st.session_state.authenticated or st.session_state.user_role != 'dean':
         pwd = st.sidebar.text_input(t['dean_password'], type="password", key="dean_pwd")
         if st.sidebar.button("Login", key="dean_login"):
             if pwd == DEAN_PASSWORD:
                 st.session_state.authenticated = True
                 st.session_state.user_role = 'dean'
+                st.sidebar.success(t['access_granted'])
+                st.rerun()
+            else:
+                st.sidebar.error(t['incorrect_password'])
+    else:
+        st.sidebar.success(f"✅ {t['access_granted']}")
+else:  # Instructor
+    if not st.session_state.authenticated or st.session_state.user_role != 'instructor':
+        pwd = st.sidebar.text_input(t['instructor_password'], type="password", key="inst_pwd")
+        if st.sidebar.button("Login", key="inst_login"):
+            if pwd == INSTRUCTOR_PASSWORD:
+                st.session_state.authenticated = True
+                st.session_state.user_role = 'instructor'
                 st.sidebar.success(t['access_granted'])
                 st.rerun()
             else:
@@ -721,6 +723,8 @@ if st.session_state.user_role == 'registrar':
     welcome_msg = t['welcome_registrar']
 elif st.session_state.user_role == 'dean':
     welcome_msg = t['welcome_dean']
+elif st.session_state.user_role == 'instructor':
+    welcome_msg = t['welcome_instructor']
 else:
     welcome_msg = ""
 
@@ -737,12 +741,13 @@ if st.session_state.authenticated:
 # ============================================================
 if st.session_state.authenticated:
     
-    if st.session_state.user_role == 'registrar':
+    # ---------- INSTRUCTOR VIEW ----------
+    if st.session_state.user_role == 'instructor':
         tab1, tab2 = st.tabs([t['grade_submission'], t['reports']])
         
         # ---------- TAB 1: GRADE SUBMISSION ----------
         with tab1:
-            st.subheader(t['upload_template'])
+            st.subheader("📤 " + t['upload_template'])
             
             # Download template
             template_df = generate_template()
@@ -756,18 +761,14 @@ if st.session_state.authenticated:
             )
             
             st.markdown("---")
-            st.subheader("📤 Upload Grades")
-            
-            uploaded_file = st.file_uploader(t['upload_file'], type=['xlsx', 'xls', 'csv'], key="grade_upload")
-            
+            st.subheader("📤 Upload Excel File")
+            uploaded_file = st.file_uploader(t['upload_file'], type=['xlsx', 'xls', 'csv'], key="inst_upload")
             if uploaded_file is not None:
                 try:
                     if uploaded_file.name.endswith('.csv'):
                         df_upload = pd.read_csv(uploaded_file)
                     else:
                         df_upload = pd.read_excel(uploaded_file)
-                    
-                    # Validate columns
                     required = ['StudentID', 'StudentName', 'Sex', 'College', 'Department', 
                                'Course', 'Location', 'Assessment70', 'Exam30']
                     missing = [col for col in required if col not in df_upload.columns]
@@ -776,35 +777,27 @@ if st.session_state.authenticated:
                     else:
                         st.write(t['preview'])
                         st.dataframe(df_upload.head(10), use_container_width=True)
-                        
-                        # Academic Year & Semester
                         col1, col2 = st.columns(2)
                         with col1:
-                            academic_year = st.text_input(t['academic_year'], value="2018 E.C", key="reg_academic_year")
+                            academic_year = st.text_input(t['academic_year'], value="2018 E.C", key="inst_academic_year")
                         with col2:
-                            semester = st.text_input(t['semester'], value="Semester 1", key="reg_semester")
-                        
-                        if 'upload_submitted' not in st.session_state:
-                            st.session_state.upload_submitted = False
-                        
-                        if st.session_state.upload_submitted:
+                            semester = st.text_input(t['semester'], value="Semester 1", key="inst_semester")
+                        if 'inst_upload_submitted' not in st.session_state:
+                            st.session_state.inst_upload_submitted = False
+                        if st.session_state.inst_upload_submitted:
                             st.success(t['upload_success'])
                             st.balloons()
-                            if st.button(t['upload_another'], key="upload_another"):
-                                st.session_state.upload_submitted = False
+                            if st.button(t['upload_another'], key="inst_upload_another"):
+                                st.session_state.inst_upload_submitted = False
                                 st.rerun()
                         else:
-                            if st.button("🚀 Process & Upload Grades", key="process_grades", use_container_width=True):
+                            if st.button("🚀 Process & Upload Grades", key="inst_process_grades", use_container_width=True):
                                 with st.spinner(t['processing']):
-                                    # Process grades
                                     processed = process_grades(df_upload)
                                     save_grades(processed, academic_year, semester)
-                                    st.session_state.upload_submitted = True
+                                    st.session_state.inst_upload_submitted = True
                                     st.success(t['upload_success'])
                                     st.balloons()
-                                    
-                                    # Show summary
-                                    st.markdown("### 📊 Upload Summary")
                                     col1, col2, col3 = st.columns(3)
                                     col1.metric(t['total_students'], len(processed))
                                     col2.metric(t['passed'], len(processed[processed['Remark'] == 'Passed']))
@@ -812,30 +805,70 @@ if st.session_state.authenticated:
                                     st.rerun()
                 except Exception as e:
                     st.error(f"Error reading file: {e}")
+            
+            st.markdown("---")
+            st.subheader(t['manual_entry'])
+            with st.form(key="manual_form"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    student_id = st.text_input(t['student_id'], key="inst_manual_id")
+                    student_name = st.text_input(t['student_name'], key="inst_manual_name")
+                    sex = st.selectbox(t['sex'], [t['male'], t['female']], key="inst_manual_sex")
+                    college = st.text_input(t['college'], value="JMBC", key="inst_manual_college")
+                    department = st.selectbox(t['department'], [t['accounting'], t['crm'], t['pharmacy'], t['nursing']], key="inst_manual_dept")
+                with col2:
+                    course = st.text_input(t['course'], key="inst_manual_course")
+                    location = st.selectbox(t['location'], [t['jigjiga'], t['kebrebeya'], t['fiq']], key="inst_manual_loc")
+                    assessment70 = st.number_input(t['assessment_70'], min_value=0.0, max_value=70.0, step=0.5, key="inst_manual_assess")
+                    exam30 = st.number_input(t['exam_30'], min_value=0.0, max_value=30.0, step=0.5, key="inst_manual_exam")
+                academic_year_manual = st.text_input(t['academic_year'], value="2018 E.C", key="inst_manual_year")
+                semester_manual = st.text_input(t['semester'], value="Semester 1", key="inst_manual_sem")
+                submit_btn = st.form_submit_button(t['manual_submit_btn'], use_container_width=True)
+                if submit_btn:
+                    if not student_id or not student_name or not course:
+                        st.warning("Please fill all required fields.")
+                    else:
+                        total = assessment70 + exam30
+                        grade, remark = calculate_grade(total)
+                        # Create a single row dataframe
+                        new_row = pd.DataFrame([{
+                            'StudentID': student_id,
+                            'StudentName': student_name,
+                            'Sex': sex,
+                            'College': college,
+                            'Department': department,
+                            'Course': course,
+                            'Location': location,
+                            'Assessment70': assessment70,
+                            'Exam30': exam30,
+                            'TotalMarks': total,
+                            'Grade': grade,
+                            'Remark': remark
+                        }])
+                        save_grades(new_row, academic_year_manual, semester_manual)
+                        st.success(f"✅ Grade for {student_name} submitted successfully!")
+                        st.balloons()
+                        # Clear form by rerun
+                        st.rerun()
         
         # ---------- TAB 2: REPORTS ----------
         with tab2:
             st.subheader(t['reports'])
-            
-            # Get all grades
             all_grades = get_all_grades()
-            
             if all_grades.empty:
                 st.info(t['no_grades'])
             else:
-                # Filters
+                # Filter and display
                 col1, col2, col3 = st.columns(3)
                 with col1:
                     departments = ['All'] + all_grades['Department'].unique().tolist()
-                    dept_filter = st.selectbox(t['department'], departments)
+                    dept_filter = st.selectbox(t['department'], departments, key="inst_dept_filter")
                 with col2:
                     locations = ['All'] + all_grades['Location'].unique().tolist()
-                    loc_filter = st.selectbox(t['location'], locations)
+                    loc_filter = st.selectbox(t['location'], locations, key="inst_loc_filter")
                 with col3:
                     grades = ['All'] + all_grades['Grade'].unique().tolist()
-                    grade_filter = st.selectbox(t['grade'], grades)
-                
-                # Filter data
+                    grade_filter = st.selectbox(t['grade'], grades, key="inst_grade_filter")
                 filtered = all_grades.copy()
                 if dept_filter != 'All':
                     filtered = filtered[filtered['Department'] == dept_filter]
@@ -843,253 +876,249 @@ if st.session_state.authenticated:
                     filtered = filtered[filtered['Location'] == loc_filter]
                 if grade_filter != 'All':
                     filtered = filtered[filtered['Grade'] == grade_filter]
-                
-                # Display
-                st.dataframe(filtered[['StudentID', 'StudentName', 'Department', 'Course', 
-                                       'TotalMarks', 'Grade', 'Remark']], use_container_width=True)
-                
+                st.dataframe(filtered[['StudentID', 'StudentName', 'Department', 'Course', 'TotalMarks', 'Grade', 'Remark']], use_container_width=True)
                 st.markdown("---")
-                
-                # Two Reports
                 col1, col2 = st.columns(2)
                 with col1:
                     st.subheader(t['full_report'])
                     full_excel = create_excel_download(filtered, "Full_Grade_Report.xlsx")
-                    st.download_button(
-                        label=t['download_full'],
-                        data=full_excel.getvalue(),
-                        file_name="Full_Grade_Report.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        use_container_width=True
-                    )
-                
+                    st.download_button(label=t['download_full'], data=full_excel.getvalue(), file_name="Full_Grade_Report.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
                 with col2:
                     st.subheader(t['ng_f_report'])
                     ng_f = filtered[filtered['Remark'].isin(['NG', 'Failed'])]
                     if not ng_f.empty:
                         ng_f_excel = create_excel_download(ng_f, "NG_F_Students_Report.xlsx")
-                        st.download_button(
-                            label=t['download_ng_f'],
-                            data=ng_f_excel.getvalue(),
-                            file_name="NG_F_Students_Report.xlsx",
-                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            use_container_width=True
-                        )
+                        st.download_button(label=t['download_ng_f'], data=ng_f_excel.getvalue(), file_name="NG_F_Students_Report.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
                         st.warning(f"⚠️ {len(ng_f)} students need re-exam!")
                     else:
                         st.success("✅ No NG or F students!")
-                
+                # Monthly report
                 st.markdown("---")
-                
-                # Monthly Report
                 st.subheader(t['monthly_report'])
                 col1, col2 = st.columns(2)
                 with col1:
-                    month_sel = st.selectbox(t['month'], list(range(1, 13)), 
-                                            format_func=lambda x: t['january'] if x==1 else 
-                                                              t['february'] if x==2 else
-                                                              t['march'] if x==3 else
-                                                              t['april'] if x==4 else
-                                                              t['may'] if x==5 else
-                                                              t['june'] if x==6 else
-                                                              t['july'] if x==7 else
-                                                              t['august'] if x==8 else
-                                                              t['september'] if x==9 else
-                                                              t['october'] if x==10 else
-                                                              t['november'] if x==11 else
-                                                              t['december'])
+                    month_sel = st.selectbox(t['month'], list(range(1,13)), key="inst_month",
+                                            format_func=lambda x: t['january'] if x==1 else t['february'] if x==2 else t['march'] if x==3 else t['april'] if x==4 else t['may'] if x==5 else t['june'] if x==6 else t['july'] if x==7 else t['august'] if x==8 else t['september'] if x==9 else t['october'] if x==10 else t['november'] if x==11 else t['december'])
                 with col2:
-                    year_sel = st.number_input(t['academic_year'], min_value=2020, max_value=2030, value=2025)
-                
-                if st.button(t['generate_monthly'], key="monthly_btn"):
+                    year_sel = st.number_input(t['academic_year'], min_value=2020, max_value=2030, value=2025, key="inst_year")
+                if st.button(t['generate_monthly'], key="inst_monthly_btn"):
                     monthly_df = get_monthly_ng_report(month_sel, year_sel)
                     if not monthly_df.empty:
                         st.subheader(t['monthly_ng_report'])
-                        st.dataframe(monthly_df[['StudentID', 'StudentName', 'Department', 'Course', 'Grade']], 
-                                   use_container_width=True)
+                        st.dataframe(monthly_df[['StudentID', 'StudentName', 'Department', 'Course', 'Grade']], use_container_width=True)
                         monthly_excel = create_excel_download(monthly_df, f"Monthly_NG_Report_{month_sel}_{year_sel}.xlsx")
-                        st.download_button(
-                            label=t['download_monthly'],
-                            data=monthly_excel.getvalue(),
-                            file_name=f"Monthly_NG_Report_{month_sel}_{year_sel}.xlsx",
-                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            use_container_width=True
-                        )
+                        st.download_button(label=t['download_monthly'], data=monthly_excel.getvalue(), file_name=f"Monthly_NG_Report_{month_sel}_{year_sel}.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
                     else:
                         st.info(f"No NG students in {month_sel}/{year_sel}")
-                
-                # Delete Record
+                # Delete
                 st.markdown("---")
                 st.subheader(t['delete_record'])
                 ids = all_grades['Id'].tolist()
                 if ids:
-                    selected_id = st.selectbox(t['select_record'], ids, format_func=lambda x: f"ID: {x}")
-                    if st.button(t['delete_btn'], key="delete_btn"):
-                        success, old_data = delete_grade_record(selected_id)
+                    selected_id = st.selectbox(t['select_record'], ids, format_func=lambda x: f"ID: {x}", key="inst_del_select")
+                    if st.button(t['delete_btn'], key="inst_del_btn"):
+                        success, _ = delete_grade_record(selected_id)
                         if success:
                             st.success(t['delete_success'])
                             st.rerun()
                         else:
                             st.error("Delete failed")
     
-    # ============================================================
-    # DEAN VIEW
-    # ============================================================
-    else:
-        tab1, tab2, tab3 = st.tabs([t['dashboard'], t['all_grades'], t['reports']])
-        
-        # ---------- TAB 1: DASHBOARD ----------
+    # ---------- REGISTRAR VIEW (same as before) ----------
+    elif st.session_state.user_role == 'registrar':
+        tab1, tab2 = st.tabs([t['grade_submission'], t['reports']])
         with tab1:
-            st.subheader(t['dashboard'])
-            
+            st.subheader(t['upload_template'])
+            template_df = generate_template()
+            template_excel = create_excel_download(template_df, "JMBC_Grade_Template.xlsx")
+            st.download_button(label=t['download_template_btn'], data=template_excel.getvalue(), file_name="JMBC_Grade_Template.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
+            st.markdown("---")
+            st.subheader("📤 Upload Grades")
+            uploaded_file = st.file_uploader(t['upload_file'], type=['xlsx', 'xls', 'csv'], key="reg_upload")
+            if uploaded_file is not None:
+                try:
+                    if uploaded_file.name.endswith('.csv'):
+                        df_upload = pd.read_csv(uploaded_file)
+                    else:
+                        df_upload = pd.read_excel(uploaded_file)
+                    required = ['StudentID', 'StudentName', 'Sex', 'College', 'Department', 'Course', 'Location', 'Assessment70', 'Exam30']
+                    missing = [col for col in required if col not in df_upload.columns]
+                    if missing:
+                        st.error(f"Missing columns: {missing}")
+                    else:
+                        st.write(t['preview'])
+                        st.dataframe(df_upload.head(10), use_container_width=True)
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            academic_year = st.text_input(t['academic_year'], value="2018 E.C", key="reg_academic_year")
+                        with col2:
+                            semester = st.text_input(t['semester'], value="Semester 1", key="reg_semester")
+                        if 'reg_upload_submitted' not in st.session_state:
+                            st.session_state.reg_upload_submitted = False
+                        if st.session_state.reg_upload_submitted:
+                            st.success(t['upload_success'])
+                            st.balloons()
+                            if st.button(t['upload_another'], key="reg_upload_another"):
+                                st.session_state.reg_upload_submitted = False
+                                st.rerun()
+                        else:
+                            if st.button("🚀 Process & Upload Grades", key="reg_process_grades", use_container_width=True):
+                                with st.spinner(t['processing']):
+                                    processed = process_grades(df_upload)
+                                    save_grades(processed, academic_year, semester)
+                                    st.session_state.reg_upload_submitted = True
+                                    st.success(t['upload_success'])
+                                    st.balloons()
+                                    col1, col2, col3 = st.columns(3)
+                                    col1.metric(t['total_students'], len(processed))
+                                    col2.metric(t['passed'], len(processed[processed['Remark'] == 'Passed']))
+                                    col3.metric(t['failed'], len(processed[processed['Remark'] != 'Passed']))
+                                    st.rerun()
+                except Exception as e:
+                    st.error(f"Error reading file: {e}")
+        with tab2:
+            st.subheader(t['reports'])
             all_grades = get_all_grades()
             if all_grades.empty:
                 st.info(t['no_grades'])
             else:
-                # Overall metrics
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    departments = ['All'] + all_grades['Department'].unique().tolist()
+                    dept_filter = st.selectbox(t['department'], departments, key="reg_dept_filter")
+                with col2:
+                    locations = ['All'] + all_grades['Location'].unique().tolist()
+                    loc_filter = st.selectbox(t['location'], locations, key="reg_loc_filter")
+                with col3:
+                    grades = ['All'] + all_grades['Grade'].unique().tolist()
+                    grade_filter = st.selectbox(t['grade'], grades, key="reg_grade_filter")
+                filtered = all_grades.copy()
+                if dept_filter != 'All':
+                    filtered = filtered[filtered['Department'] == dept_filter]
+                if loc_filter != 'All':
+                    filtered = filtered[filtered['Location'] == loc_filter]
+                if grade_filter != 'All':
+                    filtered = filtered[filtered['Grade'] == grade_filter]
+                st.dataframe(filtered[['StudentID', 'StudentName', 'Department', 'Course', 'TotalMarks', 'Grade', 'Remark']], use_container_width=True)
+                st.markdown("---")
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.subheader(t['full_report'])
+                    full_excel = create_excel_download(filtered, "Full_Grade_Report.xlsx")
+                    st.download_button(label=t['download_full'], data=full_excel.getvalue(), file_name="Full_Grade_Report.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
+                with col2:
+                    st.subheader(t['ng_f_report'])
+                    ng_f = filtered[filtered['Remark'].isin(['NG', 'Failed'])]
+                    if not ng_f.empty:
+                        ng_f_excel = create_excel_download(ng_f, "NG_F_Students_Report.xlsx")
+                        st.download_button(label=t['download_ng_f'], data=ng_f_excel.getvalue(), file_name="NG_F_Students_Report.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
+                        st.warning(f"⚠️ {len(ng_f)} students need re-exam!")
+                    else:
+                        st.success("✅ No NG or F students!")
+                st.markdown("---")
+                st.subheader(t['monthly_report'])
+                col1, col2 = st.columns(2)
+                with col1:
+                    month_sel = st.selectbox(t['month'], list(range(1,13)), key="reg_month",
+                                            format_func=lambda x: t['january'] if x==1 else t['february'] if x==2 else t['march'] if x==3 else t['april'] if x==4 else t['may'] if x==5 else t['june'] if x==6 else t['july'] if x==7 else t['august'] if x==8 else t['september'] if x==9 else t['october'] if x==10 else t['november'] if x==11 else t['december'])
+                with col2:
+                    year_sel = st.number_input(t['academic_year'], min_value=2020, max_value=2030, value=2025, key="reg_year")
+                if st.button(t['generate_monthly'], key="reg_monthly_btn"):
+                    monthly_df = get_monthly_ng_report(month_sel, year_sel)
+                    if not monthly_df.empty:
+                        st.subheader(t['monthly_ng_report'])
+                        st.dataframe(monthly_df[['StudentID', 'StudentName', 'Department', 'Course', 'Grade']], use_container_width=True)
+                        monthly_excel = create_excel_download(monthly_df, f"Monthly_NG_Report_{month_sel}_{year_sel}.xlsx")
+                        st.download_button(label=t['download_monthly'], data=monthly_excel.getvalue(), file_name=f"Monthly_NG_Report_{month_sel}_{year_sel}.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
+                    else:
+                        st.info(f"No NG students in {month_sel}/{year_sel}")
+                st.markdown("---")
+                st.subheader(t['delete_record'])
+                ids = all_grades['Id'].tolist()
+                if ids:
+                    selected_id = st.selectbox(t['select_record'], ids, format_func=lambda x: f"ID: {x}", key="reg_del_select")
+                    if st.button(t['delete_btn'], key="reg_del_btn"):
+                        success, _ = delete_grade_record(selected_id)
+                        if success:
+                            st.success(t['delete_success'])
+                            st.rerun()
+                        else:
+                            st.error("Delete failed")
+    
+    # ---------- DEAN VIEW (unchanged) ----------
+    else:
+        tab1, tab2, tab3 = st.tabs([t['dashboard'], t['all_grades'], t['reports']])
+        with tab1:
+            st.subheader(t['dashboard'])
+            all_grades = get_all_grades()
+            if all_grades.empty:
+                st.info(t['no_grades'])
+            else:
                 total = len(all_grades)
                 passed = len(all_grades[all_grades['Remark'] == 'Passed'])
                 failed = len(all_grades[all_grades['Remark'] == 'Failed'])
                 ng = len(all_grades[all_grades['Remark'] == 'NG'])
-                
                 col1, col2, col3, col4 = st.columns(4)
                 col1.metric(t['total_students'], total)
                 col2.metric(t['passed'], passed, delta=f"{(passed/total*100):.1f}%")
                 col3.metric(t['failed'], failed, delta=f"{(failed/total*100):.1f}%")
                 col4.metric(t['ng'], ng, delta=f"{(ng/total*100):.1f}%")
-                
-                # Combined chart - Pass/Fail by Department
                 st.subheader(t['by_department'])
                 dept_summary = get_department_summary()
                 if not dept_summary.empty:
-                    # Bar chart
-                    dept_melted = dept_summary.melt(id_vars=['Department'], 
-                                                   value_vars=['Passed', 'Failed'],
-                                                   var_name='Status', value_name='Count')
+                    dept_melted = dept_summary.melt(id_vars=['Department'], value_vars=['Passed', 'Failed'], var_name='Status', value_name='Count')
                     color_scale = alt.Scale(domain=['Passed', 'Failed'], range=['#28a745', '#dc3545'])
-                    chart = alt.Chart(dept_melted).mark_bar().encode(
-                        x='Department:N',
-                        y='Count:Q',
-                        color=alt.Color('Status:N', scale=color_scale),
-                        tooltip=['Department', 'Status', 'Count']
-                    ).properties(height=300)
+                    chart = alt.Chart(dept_melted).mark_bar().encode(x='Department:N', y='Count:Q', color=alt.Color('Status:N', scale=color_scale), tooltip=['Department', 'Status', 'Count']).properties(height=300)
                     st.altair_chart(chart, use_container_width=True)
-                
-                # Grade Distribution
                 st.subheader(t['grade_distribution'])
                 grade_dist = all_grades['Grade'].value_counts().reset_index()
                 grade_dist.columns = ['Grade', 'Count']
-                
-                # Color mapping for grades
-                grade_colors = {
-                    'A+': '#1a8a3a',
-                    'A': '#28a745',
-                    'B': '#17a2b8',
-                    'B-': '#6c8a9a',
-                    'C': '#ffc107',
-                    'C-': '#fd7e14',
-                    'NG': '#ffc107',
-                    'F': '#dc3545'
-                }
+                grade_colors = {'A+':'#1a8a3a','A':'#28a745','B':'#17a2b8','B-':'#6c8a9a','C':'#ffc107','C-':'#fd7e14','NG':'#ffc107','F':'#dc3545'}
                 color_scale = alt.Scale(domain=list(grade_colors.keys()), range=list(grade_colors.values()))
-                grade_chart = alt.Chart(grade_dist).mark_bar().encode(
-                    x=alt.X('Grade:N', sort=['A+', 'A', 'B', 'B-', 'C', 'C-', 'NG', 'F']),
-                    y='Count:Q',
-                    color=alt.Color('Grade:N', scale=color_scale),
-                    tooltip=['Grade', 'Count']
-                ).properties(height=300)
+                grade_chart = alt.Chart(grade_dist).mark_bar().encode(x=alt.X('Grade:N', sort=['A+','A','B','B-','C','C-','NG','F']), y='Count:Q', color=alt.Color('Grade:N', scale=color_scale), tooltip=['Grade','Count']).properties(height=300)
                 st.altair_chart(grade_chart, use_container_width=True)
-                
-                # Location summary
                 st.subheader("📍 Students by Location")
                 loc_dist = all_grades['Location'].value_counts().reset_index()
                 loc_dist.columns = ['Location', 'Count']
-                loc_chart = alt.Chart(loc_dist).mark_bar(color='#b8860b').encode(
-                    x='Location:N',
-                    y='Count:Q',
-                    tooltip=['Location', 'Count']
-                ).properties(height=250)
+                loc_chart = alt.Chart(loc_dist).mark_bar(color='#b8860b').encode(x='Location:N', y='Count:Q', tooltip=['Location','Count']).properties(height=250)
                 st.altair_chart(loc_chart, use_container_width=True)
-        
-        # ---------- TAB 2: ALL GRADES ----------
         with tab2:
             st.subheader(t['all_grades'])
             all_grades = get_all_grades()
             if all_grades.empty:
                 st.info(t['no_grades'])
             else:
-                st.dataframe(all_grades[['StudentID', 'StudentName', 'Department', 'Course', 
-                                         'Location', 'TotalMarks', 'Grade', 'Remark']], 
-                           use_container_width=True)
-        
-        # ---------- TAB 3: REPORTS ----------
+                st.dataframe(all_grades[['StudentID', 'StudentName', 'Department', 'Course', 'Location', 'TotalMarks', 'Grade', 'Remark']], use_container_width=True)
         with tab3:
             st.subheader(t['reports'])
             all_grades = get_all_grades()
             if all_grades.empty:
                 st.info(t['no_grades'])
             else:
-                # Full Report
                 st.subheader(t['full_report'])
                 full_excel = create_excel_download(all_grades, "Full_Grade_Report.xlsx")
-                st.download_button(
-                    label=t['download_full'],
-                    data=full_excel.getvalue(),
-                    file_name="Full_Grade_Report.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    use_container_width=True
-                )
-                
-                # NG & F Report
+                st.download_button(label=t['download_full'], data=full_excel.getvalue(), file_name="Full_Grade_Report.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
                 st.subheader(t['ng_f_report'])
                 ng_f = all_grades[all_grades['Remark'].isin(['NG', 'Failed'])]
                 if not ng_f.empty:
                     ng_f_excel = create_excel_download(ng_f, "NG_F_Students_Report.xlsx")
-                    st.download_button(
-                        label=t['download_ng_f'],
-                        data=ng_f_excel.getvalue(),
-                        file_name="NG_F_Students_Report.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        use_container_width=True
-                    )
+                    st.download_button(label=t['download_ng_f'], data=ng_f_excel.getvalue(), file_name="NG_F_Students_Report.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
                     st.warning(f"⚠️ {len(ng_f)} students need re-exam!")
                 else:
                     st.success("✅ No NG or F students!")
-                
-                # Monthly Report
                 st.subheader(t['monthly_report'])
                 col1, col2 = st.columns(2)
                 with col1:
-                    month_sel = st.selectbox(t['month'], list(range(1, 13)), key="dean_month",
-                                            format_func=lambda x: t['january'] if x==1 else 
-                                                              t['february'] if x==2 else
-                                                              t['march'] if x==3 else
-                                                              t['april'] if x==4 else
-                                                              t['may'] if x==5 else
-                                                              t['june'] if x==6 else
-                                                              t['july'] if x==7 else
-                                                              t['august'] if x==8 else
-                                                              t['september'] if x==9 else
-                                                              t['october'] if x==10 else
-                                                              t['november'] if x==11 else
-                                                              t['december'])
+                    month_sel = st.selectbox(t['month'], list(range(1,13)), key="dean_month", format_func=lambda x: t['january'] if x==1 else t['february'] if x==2 else t['march'] if x==3 else t['april'] if x==4 else t['may'] if x==5 else t['june'] if x==6 else t['july'] if x==7 else t['august'] if x==8 else t['september'] if x==9 else t['october'] if x==10 else t['november'] if x==11 else t['december'])
                 with col2:
                     year_sel = st.number_input(t['academic_year'], min_value=2020, max_value=2030, value=2025, key="dean_year")
-                
                 if st.button(t['generate_monthly'], key="dean_monthly_btn"):
                     monthly_df = get_monthly_ng_report(month_sel, year_sel)
                     if not monthly_df.empty:
                         st.subheader(t['monthly_ng_report'])
-                        st.dataframe(monthly_df[['StudentID', 'StudentName', 'Department', 'Course', 'Grade']], 
-                                   use_container_width=True)
+                        st.dataframe(monthly_df[['StudentID', 'StudentName', 'Department', 'Course', 'Grade']], use_container_width=True)
                         monthly_excel = create_excel_download(monthly_df, f"Monthly_NG_Report_{month_sel}_{year_sel}.xlsx")
-                        st.download_button(
-                            label=t['download_monthly'],
-                            data=monthly_excel.getvalue(),
-                            file_name=f"Monthly_NG_Report_{month_sel}_{year_sel}.xlsx",
-                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            use_container_width=True
-                        )
+                        st.download_button(label=t['download_monthly'], data=monthly_excel.getvalue(), file_name=f"Monthly_NG_Report_{month_sel}_{year_sel}.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
                     else:
                         st.info(f"No NG students in {month_sel}/{year_sel}")
 
