@@ -17,12 +17,12 @@ warnings.filterwarnings('ignore')
 
 # ---------- CONFIG ----------
 DB_PATH = "jmbc_grades.db"
-REGISTRAR_PASSWORD = "11111111"
+REGISTRAR_PASSWORD = "0924700390"
 DEAN_PASSWORD = "00000000"
-INSTRUCTOR_PASSWORD = "22222222"
+# INSTRUCTOR: NO PASSWORD
 
 # ============================================================
-# TRANSLATIONS (with Instructor added)
+# TRANSLATIONS (same as before, with Instructor no password)
 # ============================================================
 TRANSLATIONS = {
     'en': {
@@ -36,7 +36,7 @@ TRANSLATIONS = {
         'instructor': '👨‍🏫 Instructor',
         'registrar_password': 'Enter Registrar Password',
         'dean_password': 'Enter Dean Password',
-        'instructor_password': 'Enter Instructor Password',
+        'instructor_no_password': 'No password required for Instructors',
         'incorrect_password': '❌ Incorrect password.',
         'access_granted': '✅ Access granted.',
         'refresh': '🔄 Refresh Data',
@@ -72,7 +72,7 @@ TRANSLATIONS = {
         'passed': '✅ Passed',
         'failed': '❌ Failed',
         'ng': '⚠️ NG',
-        'by_department': '📊 Students by Department',
+        'by_department': '📊 Students by Department (Bar + Pass Rate Line)',
         'performance_summary': '📊 Performance Summary',
         'grade_distribution': '📊 Grade Distribution',
         'full_report': '📋 Full Grade Report',
@@ -135,7 +135,7 @@ TRANSLATIONS = {
         'instructor': '👨‍🏫 አስተማሪ',
         'registrar_password': 'የመዝጋቢ የይለፍ ቃል',
         'dean_password': 'የዲን የይለፍ ቃል',
-        'instructor_password': 'የአስተማሪ የይለፍ ቃል',
+        'instructor_no_password': 'ለአስተማሪዎች የይለፍ ቃል አያስፈልግም',
         'incorrect_password': '❌ የይለፍ ቃሉ ተሳስቷል።',
         'access_granted': '✅ መዳረሻ ተሰጥቷል',
         'refresh': '🔄 አድስ',
@@ -171,7 +171,7 @@ TRANSLATIONS = {
         'passed': '✅ አልፈዋል',
         'failed': '❌ ወድቀዋል',
         'ng': '⚠️ ኤንጂ',
-        'by_department': '📊 በመምሪያ የተከፋፈሉ ተማሪዎች',
+        'by_department': '📊 በመምሪያ የተከፋፈሉ ተማሪዎች (አሞሌ + መስመር)',
         'performance_summary': '📊 የአፈጻጸም ማጠቃለያ',
         'grade_distribution': '📊 የውጤት ስርጭት',
         'full_report': '📋 ሙሉ የውጤት ሪፖርት',
@@ -234,7 +234,7 @@ TRANSLATIONS = {
         'instructor': '👨‍🏫 Macallin',
         'registrar_password': 'Furaha Diwaangeliye',
         'dean_password': 'Furaha Dekaan',
-        'instructor_password': 'Furaha Macallin',
+        'instructor_no_password': 'Macallimadu uma baahna furaha',
         'incorrect_password': '❌ Furaha waa qalad.',
         'access_granted': '✅ Gelitaan la siiyay',
         'refresh': '🔄 Cusboonaysii',
@@ -270,7 +270,7 @@ TRANSLATIONS = {
         'passed': '✅ Ka Gudbay',
         'failed': '❌ Ku Dhacay',
         'ng': '⚠️ NG',
-        'by_department': '📊 Ardayda Qaybaha',
+        'by_department': '📊 Ardayda Qaybaha (Baar + Khad)',
         'performance_summary': '📊 Soo Koobida Waxqabadka',
         'grade_distribution': '📊 Qaybinta Buundooyinka',
         'full_report': '📋 Warbixinta Buundooyinka Oo Dhan',
@@ -325,7 +325,7 @@ TRANSLATIONS = {
 }
 
 # ============================================================
-# DATABASE SETUP
+# DATABASE SETUP (unchanged)
 # ============================================================
 def get_db():
     return sqlite3.connect(DB_PATH, check_same_thread=False)
@@ -510,6 +510,7 @@ def get_department_summary():
     }).reset_index()
     summary.columns = ['Department', 'Total', 'Passed']
     summary['Failed'] = summary['Total'] - summary['Passed']
+    summary['PassRate'] = (summary['Passed'] / summary['Total'] * 100).round(1)
     return summary
 
 def generate_template():
@@ -674,17 +675,14 @@ elif role == t['dean']:
                 st.sidebar.error(t['incorrect_password'])
     else:
         st.sidebar.success(f"✅ {t['access_granted']}")
-else:  # Instructor
+else:  # Instructor – no password
+    st.sidebar.info(t['instructor_no_password'])
     if not st.session_state.authenticated or st.session_state.user_role != 'instructor':
-        pwd = st.sidebar.text_input(t['instructor_password'], type="password", key="inst_pwd")
-        if st.sidebar.button("Login", key="inst_login"):
-            if pwd == INSTRUCTOR_PASSWORD:
-                st.session_state.authenticated = True
-                st.session_state.user_role = 'instructor'
-                st.sidebar.success(t['access_granted'])
-                st.rerun()
-            else:
-                st.sidebar.error(t['incorrect_password'])
+        # Auto-login
+        st.session_state.authenticated = True
+        st.session_state.user_role = 'instructor'
+        st.sidebar.success(t['access_granted'])
+        st.rerun()
     else:
         st.sidebar.success(f"✅ {t['access_granted']}")
 
@@ -830,7 +828,6 @@ if st.session_state.authenticated:
                     else:
                         total = assessment70 + exam30
                         grade, remark = calculate_grade(total)
-                        # Create a single row dataframe
                         new_row = pd.DataFrame([{
                             'StudentID': student_id,
                             'StudentName': student_name,
@@ -848,7 +845,6 @@ if st.session_state.authenticated:
                         save_grades(new_row, academic_year_manual, semester_manual)
                         st.success(f"✅ Grade for {student_name} submitted successfully!")
                         st.balloons()
-                        # Clear form by rerun
                         st.rerun()
         
         # ---------- TAB 2: REPORTS ----------
@@ -858,7 +854,6 @@ if st.session_state.authenticated:
             if all_grades.empty:
                 st.info(t['no_grades'])
             else:
-                # Filter and display
                 col1, col2, col3 = st.columns(3)
                 with col1:
                     departments = ['All'] + all_grades['Department'].unique().tolist()
@@ -892,7 +887,6 @@ if st.session_state.authenticated:
                         st.warning(f"⚠️ {len(ng_f)} students need re-exam!")
                     else:
                         st.success("✅ No NG or F students!")
-                # Monthly report
                 st.markdown("---")
                 st.subheader(t['monthly_report'])
                 col1, col2 = st.columns(2)
@@ -910,7 +904,6 @@ if st.session_state.authenticated:
                         st.download_button(label=t['download_monthly'], data=monthly_excel.getvalue(), file_name=f"Monthly_NG_Report_{month_sel}_{year_sel}.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
                     else:
                         st.info(f"No NG students in {month_sel}/{year_sel}")
-                # Delete
                 st.markdown("---")
                 st.subheader(t['delete_record'])
                 ids = all_grades['Id'].tolist()
@@ -924,7 +917,7 @@ if st.session_state.authenticated:
                         else:
                             st.error("Delete failed")
     
-    # ---------- REGISTRAR VIEW (same as before) ----------
+    # ---------- REGISTRAR VIEW ----------
     elif st.session_state.user_role == 'registrar':
         tab1, tab2 = st.tabs([t['grade_submission'], t['reports']])
         with tab1:
@@ -1045,7 +1038,7 @@ if st.session_state.authenticated:
                         else:
                             st.error("Delete failed")
     
-    # ---------- DEAN VIEW (unchanged) ----------
+    # ---------- DEAN VIEW (with Combined Chart) ----------
     else:
         tab1, tab2, tab3 = st.tabs([t['dashboard'], t['all_grades'], t['reports']])
         with tab1:
@@ -1063,25 +1056,55 @@ if st.session_state.authenticated:
                 col2.metric(t['passed'], passed, delta=f"{(passed/total*100):.1f}%")
                 col3.metric(t['failed'], failed, delta=f"{(failed/total*100):.1f}%")
                 col4.metric(t['ng'], ng, delta=f"{(ng/total*100):.1f}%")
+                
+                # ---- COMBINED BAR + LINE CHART ----
                 st.subheader(t['by_department'])
                 dept_summary = get_department_summary()
                 if not dept_summary.empty:
-                    dept_melted = dept_summary.melt(id_vars=['Department'], value_vars=['Passed', 'Failed'], var_name='Status', value_name='Count')
-                    color_scale = alt.Scale(domain=['Passed', 'Failed'], range=['#28a745', '#dc3545'])
-                    chart = alt.Chart(dept_melted).mark_bar().encode(x='Department:N', y='Count:Q', color=alt.Color('Status:N', scale=color_scale), tooltip=['Department', 'Status', 'Count']).properties(height=300)
-                    st.altair_chart(chart, use_container_width=True)
+                    # Bar chart: Total students per department
+                    bar = alt.Chart(dept_summary).mark_bar(opacity=0.7, color='#b8860b').encode(
+                        x=alt.X('Department:N', title='Department'),
+                        y=alt.Y('Total:Q', title='Total Students', axis=alt.Axis(titleColor='#1a1a2e')),
+                        tooltip=['Department', 'Total', 'PassRate']
+                    )
+                    # Line chart: Pass Rate (scale independent)
+                    line = alt.Chart(dept_summary).mark_line(point=True, color='#dc3545', strokeWidth=3).encode(
+                        x='Department:N',
+                        y=alt.Y('PassRate:Q', title='Pass Rate (%)', axis=alt.Axis(titleColor='#dc3545')),
+                        tooltip=['Department', 'PassRate']
+                    )
+                    # Combine with independent y-axis
+                    combined = alt.layer(bar, line).resolve_scale(y='independent')
+                    st.altair_chart(combined, use_container_width=True)
+                    
+                    # Show summary table
+                    st.dataframe(dept_summary[['Department', 'Total', 'Passed', 'Failed', 'PassRate']], use_container_width=True)
+                
+                # Grade Distribution
                 st.subheader(t['grade_distribution'])
                 grade_dist = all_grades['Grade'].value_counts().reset_index()
                 grade_dist.columns = ['Grade', 'Count']
                 grade_colors = {'A+':'#1a8a3a','A':'#28a745','B':'#17a2b8','B-':'#6c8a9a','C':'#ffc107','C-':'#fd7e14','NG':'#ffc107','F':'#dc3545'}
                 color_scale = alt.Scale(domain=list(grade_colors.keys()), range=list(grade_colors.values()))
-                grade_chart = alt.Chart(grade_dist).mark_bar().encode(x=alt.X('Grade:N', sort=['A+','A','B','B-','C','C-','NG','F']), y='Count:Q', color=alt.Color('Grade:N', scale=color_scale), tooltip=['Grade','Count']).properties(height=300)
+                grade_chart = alt.Chart(grade_dist).mark_bar().encode(
+                    x=alt.X('Grade:N', sort=['A+','A','B','B-','C','C-','NG','F']),
+                    y='Count:Q',
+                    color=alt.Color('Grade:N', scale=color_scale),
+                    tooltip=['Grade','Count']
+                ).properties(height=300)
                 st.altair_chart(grade_chart, use_container_width=True)
+                
+                # Location summary
                 st.subheader("📍 Students by Location")
                 loc_dist = all_grades['Location'].value_counts().reset_index()
                 loc_dist.columns = ['Location', 'Count']
-                loc_chart = alt.Chart(loc_dist).mark_bar(color='#b8860b').encode(x='Location:N', y='Count:Q', tooltip=['Location','Count']).properties(height=250)
+                loc_chart = alt.Chart(loc_dist).mark_bar(color='#b8860b').encode(
+                    x='Location:N',
+                    y='Count:Q',
+                    tooltip=['Location','Count']
+                ).properties(height=250)
                 st.altair_chart(loc_chart, use_container_width=True)
+        
         with tab2:
             st.subheader(t['all_grades'])
             all_grades = get_all_grades()
@@ -1089,6 +1112,7 @@ if st.session_state.authenticated:
                 st.info(t['no_grades'])
             else:
                 st.dataframe(all_grades[['StudentID', 'StudentName', 'Department', 'Course', 'Location', 'TotalMarks', 'Grade', 'Remark']], use_container_width=True)
+        
         with tab3:
             st.subheader(t['reports'])
             all_grades = get_all_grades()
@@ -1098,6 +1122,7 @@ if st.session_state.authenticated:
                 st.subheader(t['full_report'])
                 full_excel = create_excel_download(all_grades, "Full_Grade_Report.xlsx")
                 st.download_button(label=t['download_full'], data=full_excel.getvalue(), file_name="Full_Grade_Report.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
+                
                 st.subheader(t['ng_f_report'])
                 ng_f = all_grades[all_grades['Remark'].isin(['NG', 'Failed'])]
                 if not ng_f.empty:
@@ -1106,10 +1131,12 @@ if st.session_state.authenticated:
                     st.warning(f"⚠️ {len(ng_f)} students need re-exam!")
                 else:
                     st.success("✅ No NG or F students!")
+                
                 st.subheader(t['monthly_report'])
                 col1, col2 = st.columns(2)
                 with col1:
-                    month_sel = st.selectbox(t['month'], list(range(1,13)), key="dean_month", format_func=lambda x: t['january'] if x==1 else t['february'] if x==2 else t['march'] if x==3 else t['april'] if x==4 else t['may'] if x==5 else t['june'] if x==6 else t['july'] if x==7 else t['august'] if x==8 else t['september'] if x==9 else t['october'] if x==10 else t['november'] if x==11 else t['december'])
+                    month_sel = st.selectbox(t['month'], list(range(1,13)), key="dean_month",
+                                            format_func=lambda x: t['january'] if x==1 else t['february'] if x==2 else t['march'] if x==3 else t['april'] if x==4 else t['may'] if x==5 else t['june'] if x==6 else t['july'] if x==7 else t['august'] if x==8 else t['september'] if x==9 else t['october'] if x==10 else t['november'] if x==11 else t['december'])
                 with col2:
                     year_sel = st.number_input(t['academic_year'], min_value=2020, max_value=2030, value=2025, key="dean_year")
                 if st.button(t['generate_monthly'], key="dean_monthly_btn"):
